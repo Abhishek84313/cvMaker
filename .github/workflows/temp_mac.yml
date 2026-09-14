@@ -67,13 +67,36 @@ jobs:
 
           echo ""
           echo "=== CODE SIGN VERIFY ==="
-          codesign --verify --deep --strict --verbose=4 "$APP"
-          echo "exit code: $?"
+          codesign --verify --deep --strict --verbose=4 "$APP" || true
+          echo "APP VERIFY EXIT CODE: $?"
 
           echo ""
           echo "=== SIGNATURE Electron Framework ==="
-          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/Electron Framework.framework"
-          echo "exit code: $?"
+          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/Electron Framework.framework" || true
+          echo "FRAMEWORK EXIT CODE: $?"
+
+          echo ""
+          echo "=== MAIN HELPER ==="
+          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper.app" || true
+          echo "HELPER EXIT CODE: $?"
+
+          echo ""
+          echo "=== RENDERER HELPER ==="
+          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper (Renderer).app" || true
+          echo "RENDERER EXIT CODE: $?"
+
+          echo ""
+          echo "=== GPU HELPER ==="
+          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper (GPU).app" || true
+          echo "GPU EXIT CODE: $?"
+
+          echo ""
+          echo "=== ENTITLEMENTS ==="
+          codesign -d --entitlements :- "$APP" || true
+
+          echo ""
+          echo "=== REQUIREMENTS ==="
+          codesign -d --requirements - "$APP" || true
 
           echo ""
           echo "=== SPCTL ==="
@@ -94,6 +117,23 @@ jobs:
           echo ""
           echo "=== INFO.PLIST ==="
           plutil -p "$APP/Contents/Info.plist"
+
+          echo ""
+          echo "=== PLIST IDENTIFIERS ==="
+          echo "CFBundleIdentifier:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Contents/Info.plist"
+
+          echo ""
+          echo "CFBundleExecutable:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$APP/Contents/Info.plist"
+
+          echo ""
+          echo "CFBundleName:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleName" "$APP/Contents/Info.plist"
+
+          echo ""
+          echo "=== MACH-O IDENTIFIER ==="
+          codesign -dv --verbose=4 "$APP" 2>&1 | grep Identifier
       - name: Launch app
         run: |
             APP=$(find out -name "*.app" -print -quit)
