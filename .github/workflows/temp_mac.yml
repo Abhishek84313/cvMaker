@@ -3,7 +3,7 @@ name: macOS Debug Flow
 on:
   push:
     branches:
-      - mac-debug
+      - T-fix/mac-build
 
 jobs:
   debug:
