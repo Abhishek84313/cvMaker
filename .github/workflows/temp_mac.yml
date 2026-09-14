@@ -1,0 +1,108 @@
+name: macOS Debug
+
+on:
+  push:
+    branches:
+      - mac-debug
+
+jobs:
+  debug:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Environment
+        run: |
+          echo "=== Node ==="
+          node --version
+
+          echo "=== npm ==="
+          npm --version
+
+          echo "=== macOS ==="
+          sw_vers
+
+          echo "=== Architecture ==="
+          uname -m
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Forge Make
+        run: npm run make
+
+      - name: Find generated files
+        run: |
+          echo "=== OUT DIRECTORY ==="
+          find out -maxdepth 6 -print
+
+      - name: Inspect macOS app
+        run: |
+          APP=$(find out -name "*.app" -print -quit)
+
+          if [ -z "$APP" ]; then
+            echo "ERROR: No .app found"
+            exit 1
+          fi
+
+          echo "========================================"
+          echo "APP: $APP"
+          echo "========================================"
+
+          echo ""
+          echo "=== FILE ==="
+          file "$APP"
+
+          echo ""
+          echo "=== CODE SIGN INFO ==="
+          codesign -dv --verbose=4 "$APP" || true
+
+          echo ""
+          echo "=== CODE SIGN VERIFY ==="
+          codesign --verify --deep --strict --verbose=4 "$APP" || true
+
+          echo ""
+          echo "=== SPCTL ==="
+          spctl --assess --type execute --verbose=4 "$APP" || true
+
+          echo ""
+          echo "=== QUARANTINE ==="
+          xattr -lr "$APP" || true
+
+          echo ""
+          echo "=== NATIVE BINARIES ==="
+          find "$APP" -type f \( -name "*.node" -o -name "*.dylib" \) -exec file {} \;
+
+          echo ""
+          echo "=== EXECUTABLE ==="
+          file "$APP/Contents/MacOS/"*
+
+          echo ""
+          echo "=== INFO.PLIST ==="
+          plutil -p "$APP/Contents/Info.plist"
+      - name: Launch app
+        run: |
+            APP=$(find out -name "*.app" -print -quit)
+
+            echo "Launching $APP"
+
+            "$APP/Contents/MacOS/"* &
+            PID=$!
+
+            sleep 10
+
+            if kill -0 $PID 2>/dev/null; then
+                echo "App is still running"
+                kill $PID
+            else
+                echo "App exited"
+                exit 1
+            fi
