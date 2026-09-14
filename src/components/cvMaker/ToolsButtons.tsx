@@ -1,9 +1,13 @@
 import { Download, List, ListX, Save, SidebarClose, UserRound, UserRoundX } from "lucide-react";
 import { Button } from "../ui/button";
 import { exportToPdf } from "./cvTemplate/exportCV";
+import { exportCoverLetterToPdf } from "./coverLetter/exportCoverLetter";
 import { useState } from "react";
 import { useCVSelection } from "./provider/hook";
 import { useProfileStore } from "@/store/profile";
+import useCoverLetterContext from "./CoverLetterProvider/hook";
+import { useUiStore } from "@/store/ui";
+import { getModifierKeyLabel } from "@/hooks/use-keyboard-shortcut";
 
 interface ToolsButtonsProps {
     openPicker: () => void;
@@ -12,11 +16,17 @@ interface ToolsButtonsProps {
 
 export default function ToolsButtons({ openPicker, coverLetterActive = false }: ToolsButtonsProps) {
     const [isExporting, setIsExporting] = useState(false);
-    const { title, save, isSaving, includePhoto, setIncludePhoto, showSummary, setShowSummary } = useCVSelection();
+    const { save, isSaving, includePhoto, setIncludePhoto, showSummary, setShowSummary } = useCVSelection();
     const hasPhoto = useProfileStore((state) => Boolean(state.profile?.photo));
+    const { coverLetter } = useCoverLetterContext();
+    const { activeCvSessionId } = useUiStore()
+
     const handleExport = async () => {
         setIsExporting(true);
-        exportToPdf(title).finally(() => setIsExporting(false));
+        const exporting = coverLetterActive
+            ? exportCoverLetterToPdf(coverLetter?.companyName, coverLetter?.roleName, activeCvSessionId || undefined)
+            : exportToPdf(coverLetter?.companyName, coverLetter?.roleName, activeCvSessionId || undefined);
+        exporting.finally(() => setIsExporting(false));
     };
     
     return (
@@ -49,6 +59,7 @@ export default function ToolsButtons({ openPicker, coverLetterActive = false }: 
                 className="bg-primary/70 hover:bg-green-700 text-primary-foreground/90 transition-all duration-200 transform hover:scale-105"
                 onClick={save}
                 disabled={isSaving}
+                title={`Save (${getModifierKeyLabel()}+S)`}
             >
                 <Save className="mr-2 h-4 w-4" />
                 {isSaving ? "Saving..." : "Save"}
