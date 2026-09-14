@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CVSelectionContext } from './context';
-import { type AIAnalysisState } from './types';
+import { INITIAL_HEADER, type AIAnalysisState } from './types';
 import { api } from '@/api';
 import { AIAnalysisStatus } from '@shared/AIAnalysisStatus';
 import { useProfileStore } from '@/store/profile';
@@ -9,6 +9,7 @@ import { type EntityType, buildCustomKey, buildScoreKey } from '@shared/utils';
 import { type CVSelection, type CVSessionDataDTO, type JobInfos } from '@shared/jobApplications.type';
 import { toast } from 'sonner';
 import { useUiStore } from '@/store/ui';
+import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 
 export interface CVSelectionContextType {
   title: string;
@@ -31,6 +32,7 @@ export interface CVSelectionContextType {
   isBulletSelected: (parentId: string, bulletId: string) => boolean;
   toggleSkill: (id: string) => void;
   toggleEducation: (id: string) => void;
+  setHeaderInfo: (field: keyof CVSelection['headerInfos'], value: boolean | string, customLinkLabel?: string) => void;
   setIncludePhoto: (include: boolean) => void;
   setShowSummary: (show: boolean) => void;
   runFullAIAnalysis: (rawMandate: string) => Promise<void>;
@@ -51,9 +53,10 @@ export type ScoreMap = Record<string, number>;
 
 export function CVSelectionProvider({ children }: { children: React.ReactNode }) {
   const { education, profile, experience, projects } = useProfileStore();
-  const { activeCvSessionId } = useUiStore();
+  const { activeCvSessionId, loadCvSession } = useUiStore();
   const [title, setTitle] = useState<string>(() => "Resume - " + (profile?.firstName || "Draft") + " - " + Date.now());
   const [selection, setSelection] = useState<CVSelection>({
+    headerInfos: INITIAL_HEADER,
     selectedExpIds: [],
     selectedProjectIds: [],
     selectedBullets: {},
@@ -185,8 +188,10 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const loadSession = useCallback((sessionData: CVSessionDataDTO) => {
+    if (!sessionData) return;
     setId(sessionData.id);
     setTitle(sessionData.title);
+    if(!sessionData.selection.headerInfos) sessionData.selection.headerInfos = INITIAL_HEADER;
     setSelection(sessionData.selection);
     if (sessionData.jobInfos) {
       setJobInfos(sessionData.jobInfos);
@@ -195,6 +200,19 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     setScores(sessionData.scores || {});
     setSummaryBullets(sessionData.topResumeSummary || []);
 
+  }, []);
+
+  const setHeaderInfo = useCallback((field: keyof CVSelection['headerInfos'], value: boolean | string, customLinkLabel?: string) => {
+    setSelection(prev => {
+      const newHeaderInfos = {
+        ...prev.headerInfos,
+        ...(field !== 'customLinks' ? { [field]: value } : {}),
+      };
+      if (customLinkLabel && field === 'customLinks' && typeof value === 'boolean') {
+        newHeaderInfos.customLinks[customLinkLabel] = value;
+      }
+      return { ...prev, headerInfos: newHeaderInfos };
+    });
   }, []);
 
   useEffect(() => {
@@ -296,6 +314,11 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
         }
 
         case AIAnalysisStatus.Success:{
+          const item = data.data as { id: string };
+          if (item?.id) {
+            setId(item.id);
+            loadCvSession(item.id);
+          }
           setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Success, isCurrentJob: false }));
           setSelection(prev => ({
             ...prev,
@@ -361,6 +384,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       removeStatus();
       setRewritingKeys([]);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.language, education, updateCustomField]);
 
   const getCustomField = useCallback((entityType: EntityType, id: string, field: string, defaultValue: string = '') => {
@@ -502,6 +526,12 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     }
   }, [id, title, selection, jobInfos, customTexts, scores, summaryBullets]);
 
+  useKeyboardShortcut('s', () => {
+    if (!isSaving) {
+      void save();
+    }
+  });
+
   return (
     <CVSelectionContext.Provider value={{ 
       title,
@@ -524,6 +554,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       toggleBullet,
       toggleSkill,
       toggleEducation,
+      setHeaderInfo,
       setIncludePhoto,
       setShowSummary,
       isBulletSelected,
