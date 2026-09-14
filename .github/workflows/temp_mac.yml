@@ -67,7 +67,13 @@ jobs:
 
           echo ""
           echo "=== CODE SIGN VERIFY ==="
-          codesign --verify --deep --strict --verbose=4 "$APP" || true
+          codesign --verify --deep --strict --verbose=4 "$APP"
+          echo "exit code: $?"
+
+          echo ""
+          echo "=== SIGNATURE Electron Framework ==="
+          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/Electron Framework.framework"
+          echo "exit code: $?"
 
           echo ""
           echo "=== SPCTL ==="
