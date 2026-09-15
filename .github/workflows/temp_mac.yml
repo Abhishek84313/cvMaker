@@ -184,6 +184,20 @@ jobs:
           echo ""
           echo "=== MACH-O IDENTIFIER ==="
           codesign -dv --verbose=4 "$APP" 2>&1 | grep Identifier
+      - name: Try ZIP
+        run: |
+          ZIP=$(find out/make -name "*.zip" -print -quit)
+            echo "ZIP: $ZIP"
+
+            mkdir -p /tmp/cv-test
+            ditto -x -k "$ZIP" /tmp/cv-test
+
+            find /tmp/cv-test -maxdepth 3 -print
+
+            APP=$(find /tmp/cv-test -name "*.app" -print -quit)
+
+            echo "=== QUARANTINE ==="
+            xattr -lr "$APP" || true
       - name: Launch app
         run: |
             APP=$(find out -name "*.app" -print -quit)
