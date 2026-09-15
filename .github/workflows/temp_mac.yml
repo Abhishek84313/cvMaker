@@ -38,6 +38,8 @@ jobs:
 
       - name: Inspect raw Electron
         run: |
+          set +e
+
           echo "=== ELECTRON VERSION ==="
           npx electron --version
           npm list electron
@@ -56,6 +58,29 @@ jobs:
           echo "=== VERIFY RAW ELECTRON ==="
           codesign --verify --deep --strict --verbose=4 \
             node_modules/electron/dist/Electron.app
+        
+          echo "=== VERIFY ELECTRON WITHOUT --DEEP ==="
+
+            codesign --verify --strict --verbose=4 \
+            node_modules/electron/dist/Electron.app
+
+            echo "EXIT CODE: $?"
+
+            echo ""
+            echo "=== VERIFY ELECTRON EXECUTABLE ==="
+
+            codesign --verify --strict --verbose=4 \
+            node_modules/electron/dist/Electron.app/Contents/MacOS/Electron
+
+            echo "EXIT CODE: $?"
+
+            echo ""
+            echo "=== VERIFY FRAMEWORK ==="
+
+            codesign --verify --strict --verbose=4 \
+            "node_modules/electron/dist/Electron.app/Contents/Frameworks/Electron Framework.framework"
+
+            echo "EXIT CODE: $?"
 
       - name: Run Forge Make
         run: npm run make
