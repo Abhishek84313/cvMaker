@@ -180,4 +180,7 @@ export function registerIpcHandlers() {
         return JobApplicationManager.getInstance().getCVSession(applicationId);
     });
     ipcMain.handle('generate-cover-letter', async (event, options) => generateCoverLetter(event, options));
+    ipcMain.handle('delete-application', (event, applicationId: string) => {
+        return JobApplicationManager.getInstance().deleteApplication(applicationId);
+    });
 }

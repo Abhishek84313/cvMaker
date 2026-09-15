@@ -46,4 +46,5 @@ export const api = {
     getCVSession: async (applicationId: string) => { return await window.api.getCVSession(applicationId) },
     generateCoverLetter: async (options: GenerateCoverLetterDTO) => { return await window.api.generateCoverLetter(options) },
     onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => window.api.onCoverLetterStatusUpdate(callback),
+    deleteApplication: async (applicationId: string) => { return await window.api.deleteApplication(applicationId) },
 }

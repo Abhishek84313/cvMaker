@@ -69,5 +69,6 @@ contextBridge.exposeInMainWorld('api', {
         return () => {
             ipcRenderer.removeListener('cover-status', subscription);
         };
-    }
+    },
+  deleteApplication: (applicationId: string) => ipcRenderer.invoke('delete-application', applicationId) as Promise<boolean>,
 });

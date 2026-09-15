@@ -48,6 +48,7 @@ declare global {
       getCVSession: (applicationId: string) => Promise<CVSessionDataDTO | null>;
       generateCoverLetter: (options: GenerateCoverLetterDTO) => Promise<{ success: boolean; error?: string }>;
       onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => () => void;
+      deleteApplication: (applicationId: string) => Promise<boolean>;
     };
   }
 }
