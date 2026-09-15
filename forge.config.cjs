@@ -5,7 +5,6 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     appBundleId: 'com.electron.cv-maker',
-    osxSign: {},
     icon: path.resolve(__dirname, 'assets/logo'),
     extraResource: [
       path.resolve(__dirname, 'assets')
@@ -20,7 +19,11 @@ module.exports = {
     },
     ignore: [
       /^\/binding\.gyp/,
-      process.platform === 'darwin' ? /node_modules\/onnxruntime-node\/bin\/napi-v3\/(linux|win32)/ : null,
+      ...(process.platform === 'darwin'
+      ? [
+          /node_modules\/onnxruntime-node\/bin\/napi-v3\/(linux|win32)/
+        ]
+      : []),
     ],
   },
   rebuildConfig: {},
@@ -38,6 +41,13 @@ module.exports = {
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      platforms: ['darwin'],
+      config: {
+        format: 'ULFO', // faster to build than the default UDZO; fine for most apps
+      },
     },
     {
       name: '@electron-forge/maker-deb',
