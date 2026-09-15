@@ -177,6 +177,34 @@ export class JobApplicationManager {
         return { id: this.createApplication(data as CreateApplicationDto, status), success: true };
     }
 
+    /**
+     * Deletes an application, events and its associated JSON file if it exists.
+     * @param id The ID of the application to delete.
+     * @returns True if the application was found and deleted, false if the application was not found.
+     */
+    public deleteApplication(id: string): boolean {
+        if (!this.sessionsDir) throw new Error("Sessions path not set. Call connect() first.");
+        const rawDb = this.getDb();
+        const row = rawDb.prepare(`SELECT * FROM applications WHERE id = ?`).get(id) as Application | undefined;
+
+        if (!row) {
+            console.warn(`[JobApplicationManager] Application not found: ${id}`);
+            return false;
+        }
+
+        rawDb.prepare(`DELETE FROM application_events WHERE application_id = ?`).run(id);
+        if (row.json_file_path) {
+            const fullPath = path.join(this.sessionsDir, row.json_file_path);
+            if (fs.existsSync(fullPath)) {
+                fs.unlinkSync(fullPath);
+                console.log(`[JobApplicationManager] Deleted JSON file: ${fullPath}`);
+            }
+        }
+
+        rawDb.prepare(`DELETE FROM applications WHERE id = ?`).run(id);
+        return true;
+    }
+
     public getKeyStats(): KeyStats {
         const activeApplications = this.getActiveApplicationsCount();
         const activitySpark = this.getActivitySpark();
