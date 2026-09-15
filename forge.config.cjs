@@ -46,10 +46,10 @@ module.exports = {
     {
       name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
-      config: {
+      config: (arch) => ({
         format: 'ULFO',
         name: `cv-maker-${arch}-${version}`,
-      },
+      }),
     },
     {
       name: '@electron-forge/maker-deb',
