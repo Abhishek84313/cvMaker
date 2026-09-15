@@ -4,6 +4,8 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
+    appBundleId: 'com.electron.cv-maker',
+    osxSign: {},
     icon: path.resolve(__dirname, 'assets/logo'),
     extraResource: [
       path.resolve(__dirname, 'assets')
@@ -13,10 +15,12 @@ module.exports = {
         '**/better-sqlite3/**/*',
         '**/@xenova/transformers/**/*',
         '**/sharp/**/*',
+        '**/onnxruntime-node/**/*'
       ],
     },
     ignore: [
       /^\/binding\.gyp/,
+      process.platform === 'darwin' ? /node_modules\/onnxruntime-node\/bin\/napi-v3\/(linux|win32)/ : null,
     ],
   },
   rebuildConfig: {},
