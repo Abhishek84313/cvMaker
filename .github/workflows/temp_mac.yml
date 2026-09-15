@@ -46,6 +46,8 @@ jobs:
 
       - name: Inspect macOS app
         run: |
+          set +e
+          
           APP=$(find out -name "*.app" -print -quit)
 
           if [ -z "$APP" ]; then
