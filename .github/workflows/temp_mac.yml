@@ -36,6 +36,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Inspect raw Electron
+        run: |
+          echo "=== ELECTRON VERSION ==="
+          npx electron --version
+          npm list electron
+
+          echo ""
+          echo "=== RAW ELECTRON APP ==="
+          codesign -dv --verbose=4 \
+            node_modules/electron/dist/Electron.app 2>&1 || true
+
+          echo ""
+          echo "=== RAW ELECTRON FRAMEWORK ==="
+          codesign -dv --verbose=4 \
+            "node_modules/electron/dist/Electron.app/Contents/Frameworks/Electron Framework.framework" 2>&1 || true
+
+          echo ""
+          echo "=== VERIFY RAW ELECTRON ==="
+          codesign --verify --deep --strict --verbose=4 \
+            node_modules/electron/dist/Electron.app
+
       - name: Run Forge Make
         run: npm run make
 
@@ -47,7 +68,7 @@ jobs:
       - name: Inspect macOS app
         run: |
           set +e
-          
+
           APP=$(find out -name "*.app" -print -quit)
 
           if [ -z "$APP" ]; then
