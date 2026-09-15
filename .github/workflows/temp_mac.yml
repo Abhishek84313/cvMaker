@@ -65,42 +65,44 @@ jobs:
           echo "=== CODE SIGN INFO ==="
           codesign -dv --verbose=4 "$APP" || true
 
-          echo ""
-          echo "=== CODE SIGN VERIFY ==="
-          codesign --verify --deep --strict --verbose=4 "$APP" || true
-          echo "APP VERIFY EXIT CODE: $?"
+          codesign --verify --deep --strict --verbose=4 "$APP"
+          APP_CODE=$?
+          echo "APP VERIFY EXIT CODE: $APP_CODE"
+
+          codesign --verify --strict --verbose=4 \
+          "$APP/Contents/Frameworks/Electron Framework.framework"
+          FRAMEWORK_CODE=$?
+          echo "FRAMEWORK EXIT CODE: $FRAMEWORK_CODE"
+
+          codesign --verify --strict --verbose=4 \
+          "$APP/Contents/Frameworks/cv-maker Helper.app"
+          HELPER_CODE=$?
+          echo "HELPER EXIT CODE: $HELPER_CODE"
+
+          codesign --verify --strict --verbose=4 \
+          "$APP/Contents/Frameworks/cv-maker Helper (Renderer).app"
+          RENDERER_CODE=$?
+          echo "RENDERER EXIT CODE: $RENDERER_CODE"
+
+          codesign --verify --strict --verbose=4 \
+          "$APP/Contents/Frameworks/cv-maker Helper (GPU).app"
+          GPU_CODE=$?
+          echo "GPU EXIT CODE: $GPU_CODE"
+
+          spctl --assess --type execute --verbose=4 "$APP"
+          SPCTL_CODE=$?
+          echo "SPCTL EXIT CODE: $SPCTL_CODE"
 
           echo ""
-          echo "=== SIGNATURE Electron Framework ==="
-          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/Electron Framework.framework" || true
-          echo "FRAMEWORK EXIT CODE: $?"
-
-          echo ""
-          echo "=== MAIN HELPER ==="
-          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper.app" || true
-          echo "HELPER EXIT CODE: $?"
-
-          echo ""
-          echo "=== RENDERER HELPER ==="
-          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper (Renderer).app" || true
-          echo "RENDERER EXIT CODE: $?"
-
-          echo ""
-          echo "=== GPU HELPER ==="
-          codesign --verify --strict --verbose=4 "$APP/Contents/Frameworks/cv-maker Helper (GPU).app" || true
-          echo "GPU EXIT CODE: $?"
-
-          echo ""
-          echo "=== ENTITLEMENTS ==="
-          codesign -d --entitlements :- "$APP" || true
-
-          echo ""
-          echo "=== REQUIREMENTS ==="
-          codesign -d --requirements - "$APP" || true
-
-          echo ""
-          echo "=== SPCTL ==="
-          spctl --assess --type execute --verbose=4 "$APP" || true
+          echo "========================================"
+          echo "SUMMARY"
+          echo "========================================"
+          echo "APP:        $APP_CODE"
+          echo "FRAMEWORK:  $FRAMEWORK_CODE"
+          echo "HELPER:     $HELPER_CODE"
+          echo "RENDERER:   $RENDERER_CODE"
+          echo "GPU:        $GPU_CODE"
+          echo "SPCTL:      $SPCTL_CODE"
 
           echo ""
           echo "=== QUARANTINE ==="
