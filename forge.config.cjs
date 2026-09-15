@@ -1,6 +1,7 @@
 const path = require('path');
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const { version } = require('./package.json');
 
 module.exports = {
   packagerConfig: {
@@ -46,7 +47,8 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
       config: {
-        format: 'ULFO', // faster to build than the default UDZO; fine for most apps
+        format: 'ULFO',
+        name: `cv-maker-${arch}-${version}`,
       },
     },
     {
