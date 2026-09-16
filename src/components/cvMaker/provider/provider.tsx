@@ -12,6 +12,7 @@ import { useUiStore } from '@/store/ui';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 
 export interface CVSelectionContextType {
+  id: string | null; // application id, null until the session is saved
   title: string;
   selection: CVSelection;
   includePhoto: boolean; // resolved selection.includePhoto: shown by default when the profile has a photo
@@ -533,7 +534,8 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
   });
 
   return (
-    <CVSelectionContext.Provider value={{ 
+    <CVSelectionContext.Provider value={{
+      id,
       title,
       setTitle,
       selection, 

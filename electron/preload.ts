@@ -62,6 +62,8 @@ contextBridge.exposeInMainWorld('api', {
   getApplicationWithTimeline: (applicationId: string) => ipcRenderer.invoke('get-application-with-timeline', applicationId) as Promise<ApplicationWithEvents | null>,
   updateApplicationStatus: (applicationId: string, newStatus: JobApplicationStatus, note?: string) => ipcRenderer.invoke('update-application-status', applicationId, newStatus, note) as Promise<void>,
   getCVSession: (applicationId: string) => ipcRenderer.invoke('get-CV-session', applicationId) as Promise<CVSessionDataDTO | null>,
+  openResumeFolder: (applicationId: string) => ipcRenderer.invoke('open-resume-folder', applicationId) as Promise<boolean>,
+  getResumePdf: (applicationId: string) => ipcRenderer.invoke('get-resume-pdf', applicationId) as Promise<Uint8Array | null>,
   generateCoverLetter: (options: GenerateCoverLetterDTO) => ipcRenderer.invoke('generate-cover-letter', options),
   onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => {
         const subscription = (_event: Electron.IpcRendererEvent, payload: CoverLetterStatusPayload) => callback(payload);

@@ -46,6 +46,8 @@ declare global {
       updateApplicationStatus: (id: string, newStatus: JobApplicationStatus) => Promise<void>;
       getApplicationWithTimeline: (applicationId: string) => Promise<ApplicationWithEvents | null>;
       getCVSession: (applicationId: string) => Promise<CVSessionDataDTO | null>;
+      openResumeFolder: (applicationId: string) => Promise<boolean>; // false when no resume file exists
+      getResumePdf: (applicationId: string) => Promise<Uint8Array | null>;
       generateCoverLetter: (options: GenerateCoverLetterDTO) => Promise<{ success: boolean; error?: string }>;
       onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => () => void;
       deleteApplication: (applicationId: string) => Promise<boolean>;

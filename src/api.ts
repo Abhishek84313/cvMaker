@@ -44,6 +44,8 @@ export const api = {
     updateApplicationStatus: async (id: string, newStatus: JobApplicationStatus) => { return await window.api.updateApplicationStatus(id, newStatus) },
     getApplicationWithTimeline: async (applicationId: string) => { return await window.api.getApplicationWithTimeline(applicationId) },
     getCVSession: async (applicationId: string) => { return await window.api.getCVSession(applicationId) },
+    openResumeFolder: async (applicationId: string) => { return await window.api.openResumeFolder(applicationId) },
+    getResumePdf: async (applicationId: string) => { return await window.api.getResumePdf(applicationId) },
     generateCoverLetter: async (options: GenerateCoverLetterDTO) => { return await window.api.generateCoverLetter(options) },
     onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => window.api.onCoverLetterStatusUpdate(callback),
     deleteApplication: async (applicationId: string) => { return await window.api.deleteApplication(applicationId) },
