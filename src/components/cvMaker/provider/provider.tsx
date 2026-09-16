@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { CVSelectionContext } from './context';
 import { INITIAL_HEADER, type AIAnalysisState } from './types';
 import { api } from '@/api';
@@ -47,6 +47,8 @@ export interface CVSelectionContextType {
   initJobMandate: (infos: Partial<JobInfos>) => void;
   updateJobInfos: (infos: Partial<JobInfos>) => void;
   setSummaryBullets: (bullets: string[]) => void;
+  registerSaveContributor: (key: string, getData: () => unknown) => () => void;
+  registerLoadHandler: (handler: (sessionData: CVSessionDataDTO) => void) => () => void;
 }
 
 export type CustomTextMap = Record<string, string>;
@@ -82,6 +84,18 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
   const [id, setId] = useState<string | null>(null); // can be null or undefined at the beginning!
   const [isSaving, setIsSaving] = useState(false);
   const [summaryBullets, setSummaryBullets] = useState<string[]>([]);
+  const saveContributorsRef = useRef<Map<string, () => unknown>>(new Map());
+  const loadHandlersRef = useRef<Set<(sessionData: CVSessionDataDTO) => void>>(new Set());
+
+  const registerSaveContributor = useCallback((key: string, getData: () => unknown) => {
+    saveContributorsRef.current.set(key, getData);
+    return () => { saveContributorsRef.current.delete(key); };
+  }, []);
+
+  const registerLoadHandler = useCallback((handler: (sessionData: CVSessionDataDTO) => void) => {
+    loadHandlersRef.current.add(handler);
+    return () => { loadHandlersRef.current.delete(handler); };
+  }, []);
 
   const runFullAIAnalysis = useCallback(async (rawMandate: string) => {
     setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Loading, isCurrentJob: true }));
@@ -200,6 +214,8 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     setCustomTexts(sessionData.customTexts || {});
     setScores(sessionData.scores || {});
     setSummaryBullets(sessionData.topResumeSummary || []);
+
+    loadHandlersRef.current.forEach(handler => handler(sessionData));
 
   }, []);
 
@@ -502,6 +518,10 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
   const save = useCallback(async (): Promise<string | null> => {
     setIsSaving(true);
     try {
+      const extraData: Record<string, unknown> = {};
+      saveContributorsRef.current.forEach((getData, key) => {
+        extraData[key] = getData();
+      });
       const payload: Omit<CVSessionDataDTO, 'id'> & { id?: string } = {
         id: id || undefined,
         title,
@@ -510,6 +530,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
         customTexts,
         scores,
         topResumeSummary: summaryBullets,
+        ...extraData
       };
 
       const result = await api.saveCVSession(payload);
@@ -569,7 +590,9 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       runAIRewrite,
       initJobMandate,
       updateJobInfos,
-      setSummaryBullets
+      setSummaryBullets,
+      registerSaveContributor,
+      registerLoadHandler
     }}>
       {children}
     </CVSelectionContext.Provider>
