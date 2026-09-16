@@ -1,3 +1,5 @@
+import type { CoverLetterData } from "./CoverLetter.types";
+
 export enum JobApplicationStatus {
     DRAFT = 'DRAFT',         // First draft
     REVIEW = 'REVIEW',       // AI generation done, need a human review
@@ -52,6 +54,7 @@ export interface CVSessionDataDTO {
   jobInfos: JobInfos | null;
   customTexts?: Record<string, string>;
   scores?: Record<string, number>;
+  coverLetter?: CoverLetterData;
 }
 
 export interface JobInfos {
