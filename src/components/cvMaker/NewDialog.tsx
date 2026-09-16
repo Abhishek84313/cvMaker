@@ -116,7 +116,7 @@ export default function NewDialog({ defaultOpen = false }: Props) {
         }
       }}
     >
-      <DialogContent className="bg-surface text-foreground sm:max-w-lg">
+      <DialogContent className="bg-surface text-foreground sm:max-w-lg max-h-full">
         <DialogHeader>
           <DialogTitle>Create a Resume</DialogTitle>
           <DialogDescription>
@@ -129,7 +129,7 @@ export default function NewDialog({ defaultOpen = false }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
           onSubmit={submit}
-          className="space-y-4"
+          className="space-y-4 overflow-y-hidden overflow-x-hidden max-h-full"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="job-title" label="Job title" icon={Type} required error={errors.title}>
@@ -191,7 +191,7 @@ export default function NewDialog({ defaultOpen = false }: Props) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Paste the role description, requirements, stack…"
-              className="min-h-36 bg-surface-elevated/60"
+              className="min-h-32 max-h-60 overflow-y-auto bg-surface-elevated/60"
             />
           </Field>
 
