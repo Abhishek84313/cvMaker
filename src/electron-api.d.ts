@@ -5,6 +5,7 @@ import { OnProgressCallback } from '../shared/OllamaDownloadStatus';
 import { RewriteResumeOptions } from '../shared/RewriteResume.type';
 import { KeywordStat } from '../shared/Keywords.types';
 import { Application, ApplicationWithEvents, CVSessionDataDTO, JobApplicationStatus, KeyStats } from '../shared/jobApplications.type';
+import { JobOfferPayload } from '../shared/Extension.types';
 
 export {};
 
@@ -51,6 +52,7 @@ declare global {
       generateCoverLetter: (options: GenerateCoverLetterDTO) => Promise<{ success: boolean; error?: string }>;
       onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => () => void;
       deleteApplication: (applicationId: string) => Promise<boolean>;
+      onJobReceived: (callback: (jobData: JobOfferPayload) => void) => () => void;
     };
   }
 }

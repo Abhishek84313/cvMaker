@@ -1,6 +1,7 @@
 import type { AIAnalysisStatus } from "@shared/AIAnalysisStatus";
 import type { CoverLetterStatusPayload, GenerateCoverLetterDTO } from "@shared/CoverLetter.types";
 import type { Experience } from "@shared/Experience.interface";
+import type { JobOfferPayload } from "@shared/Extension.types";
 import type { CVSessionDataDTO, JobApplicationStatus } from "@shared/jobApplications.type";
 import type { OnProgressCallback } from "@shared/OllamaDownloadStatus";
 import type { Language } from "@shared/profile.interface";
@@ -49,4 +50,5 @@ export const api = {
     generateCoverLetter: async (options: GenerateCoverLetterDTO) => { return await window.api.generateCoverLetter(options) },
     onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => window.api.onCoverLetterStatusUpdate(callback),
     deleteApplication: async (applicationId: string) => { return await window.api.deleteApplication(applicationId) },
+    onJobReceived: (callback: (jobData: JobOfferPayload) => void) => window.api.onJobReceived(callback),
 }

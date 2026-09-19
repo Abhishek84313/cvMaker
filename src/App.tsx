@@ -15,7 +15,21 @@ function App() {
     const unsubscribe = api.onError((errorMessage) => {
       toast.error(errorMessage);
     });
-    return unsubscribe;
+    const unsubscribeJob = api.onJobReceived((jobData) => {
+      console.log('Received job from extension:', jobData);
+      const currentTab = useUiStore.getState().selectedTab;
+      if (currentTab === Tabs.PROFILE_SELECTOR) {
+        toast.info('Please select a profile first!');
+        return;
+      }
+      useUiStore.getState().setIncomingJob(jobData);
+      useUiStore.getState().setSelectedTab(Tabs.CVMAKER);
+      toast.success(`Offer received : ${jobData.title || 'New offer'}`);
+    });
+    return () => {
+      unsubscribe();
+      unsubscribeJob();
+    };
   }, []);
 
   return (
