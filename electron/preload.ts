@@ -1,5 +1,6 @@
 import { CoverLetterStatusPayload, GenerateCoverLetterDTO } from "../shared/CoverLetter.types";
 import { Experience } from "../shared/Experience.interface";
+import { JobOfferPayload } from "../shared/Extension.types";
 import { Application, ApplicationWithEvents, CVSessionDataDTO, JobApplicationStatus, KeyStats } from "../shared/jobApplications.type";
 import { OnProgressCallback, SetupProgressStatus } from "../shared/OllamaDownloadStatus";
 import { Language } from "../shared/profile.interface";
@@ -73,4 +74,11 @@ contextBridge.exposeInMainWorld('api', {
         };
     },
   deleteApplication: (applicationId: string) => ipcRenderer.invoke('delete-application', applicationId) as Promise<boolean>,
+  onJobReceived: (callback: (jobData: JobOfferPayload) => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent, value: JobOfferPayload) => callback(value);
+    ipcRenderer.on('JOB_RECEIVED_FROM_EXTENSION', subscription);
+    return () => {
+      ipcRenderer.removeListener('JOB_RECEIVED_FROM_EXTENSION', subscription);
+    };
+  }
 });

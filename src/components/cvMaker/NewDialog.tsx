@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Building2, FileText, Link2, Plus, Type, Wallet } from "lucide-react";
 import { parseSalary } from "@shared/utils";
@@ -49,8 +49,16 @@ function Field({
   );
 }
 
+const convertToNumber = (value: string | number): number | null => {
+  if (typeof value === "number") {
+    return value;
+  }
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? null : parsed;
+};
+
 export default function NewDialog({ defaultOpen = false }: Props) {
-    const { setSelectedTab, activeCvSessionId } = useUiStore();
+  const { setSelectedTab, activeCvSessionId, incomingJob, setIncomingJob } = useUiStore();
   const { initJobMandate } = useCVSelection();
   const [open, setOpen] = useState(defaultOpen && !activeCvSessionId);
   const [title, setTitle] = useState("");
@@ -61,6 +69,21 @@ export default function NewDialog({ defaultOpen = false }: Props) {
   const [errors, setErrors] = useState<{ title?: string; company?: string; salary?: string }>({});
 
   const isSubmittingRef = useRef(false);
+
+  useEffect(() => {
+    if (incomingJob) {
+      initJobMandate({
+        title: incomingJob.title || "",
+        company: incomingJob.company || "",
+        url: incomingJob.url || "",
+        description: incomingJob.mandate || "",
+        salary: incomingJob.salary ? convertToNumber(incomingJob.salary) : null,
+      });
+      setIncomingJob(null);
+      // close the dialog if it was open
+      (() => setOpen(false))();
+    }
+  }, [incomingJob, initJobMandate, setIncomingJob]);
 
   const reset = () => {
     setTitle("");

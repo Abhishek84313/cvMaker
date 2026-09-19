@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { JobOfferPayload } from '@shared/Extension.types'
 
 export enum Tabs {
   PROFILE_SELECTOR = 'profile_selector', // first tab when opening the app
@@ -21,6 +22,9 @@ type UiState = {
   setSelectedTab: (tab: Tabs) => void
   activeCvSessionId: string | null;
   loadCvSession: (id: string) => void;
+  // extension management
+  incomingJob: JobOfferPayload | null;
+  setIncomingJob: (job: JobOfferPayload | null) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -35,5 +39,7 @@ export const useUiStore = create<UiState>((set) => ({
   activeCvSessionId: null,
   loadCvSession: (id: string) => {
     set({ activeCvSessionId: id })
-  }
+  },
+  incomingJob: null,
+  setIncomingJob: (job) => set({ incomingJob: job }),
 }))
