@@ -194,6 +194,34 @@ export class JobApplicationManager {
         }
         return row.pdf_file_path;
     }
+    
+    /**
+     * Deletes an application, events and its associated JSON file if it exists.
+     * @param id The ID of the application to delete.
+     * @returns True if the application was found and deleted, false if the application was not found.
+     */
+    public deleteApplication(id: string): boolean {
+        if (!this.sessionsDir) throw new Error("Sessions path not set. Call connect() first.");
+        const rawDb = this.getDb();
+        const row = rawDb.prepare(`SELECT * FROM applications WHERE id = ?`).get(id) as Application | undefined;
+
+        if (!row) {
+            console.warn(`[JobApplicationManager] Application not found: ${id}`);
+            return false;
+        }
+
+        rawDb.prepare(`DELETE FROM application_events WHERE application_id = ?`).run(id);
+        if (row.json_file_path) {
+            const fullPath = path.join(this.sessionsDir, row.json_file_path);
+            if (fs.existsSync(fullPath)) {
+                fs.unlinkSync(fullPath);
+                console.log(`[JobApplicationManager] Deleted JSON file: ${fullPath}`);
+            }
+        }
+
+        rawDb.prepare(`DELETE FROM applications WHERE id = ?`).run(id);
+        return true;
+    }
 
     public getKeyStats(): KeyStats {
         const activeApplications = this.getActiveApplicationsCount();
@@ -213,6 +241,38 @@ export class JobApplicationManager {
             ghostingRate,
             offerRate
         };
+    }
+
+    public updateExportedDocuments(
+        applicationId: string, 
+        paths: { pdfFilePath?: string; coverFilePath?: string }
+    ): void {
+        const rawDb = this.getDb();
+        const updates: string[] = [];
+        const params: unknown[] = [];
+
+        if (paths.pdfFilePath !== undefined) {
+            updates.push("pdf_file_path = ?");
+            params.push(paths.pdfFilePath);
+        }
+
+        if (paths.coverFilePath !== undefined) {
+            updates.push("motivation_letter_file_path = ?");
+            params.push(paths.coverFilePath);
+        }
+
+        if (updates.length === 0) return;
+
+        updates.push("updated_at = CURRENT_TIMESTAMP");
+        params.push(applicationId);
+
+        const query = `
+            UPDATE applications
+            SET ${updates.join(", ")}
+            WHERE id = ?
+        `;
+
+        rawDb.prepare(query).run(...params);
     }
 
     /**

@@ -12,6 +12,7 @@ export const api = {
     minimize: () => window.api.minimize(),
     maximize: () => window.api.maximize(),
     close: () => window.api.close(),
+    openFolder: async (folderPath: string) => await window.api.openFolder(folderPath),
     getProfilesList: async () => await window.api.getProfilesList(),
     addProfile: async (firstname: string, lastname: string, language: Language) => await window.api.addProfile(firstname, lastname, language),
     loadProfile: async (id: string) => await window.api.loadProfile(id),
@@ -47,4 +48,5 @@ export const api = {
     getResumePdf: async (applicationId: string) => { return await window.api.getResumePdf(applicationId) },
     generateCoverLetter: async (options: GenerateCoverLetterDTO) => { return await window.api.generateCoverLetter(options) },
     onCoverLetterStatusUpdate: (callback: (payload: CoverLetterStatusPayload) => void) => window.api.onCoverLetterStatusUpdate(callback),
+    deleteApplication: async (applicationId: string) => { return await window.api.deleteApplication(applicationId) },
 }

@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('api', {
   minimize: () => ipcRenderer.send('minimize'),
   maximize: () => ipcRenderer.send('maximize'),
   close: () => ipcRenderer.send('close'),
+  openFolder: (folderPath: string) => ipcRenderer.invoke('open-folder', folderPath),
   getProfilesList: () => ipcRenderer.invoke('getProfilesList'),
   addProfile: (firstname: string, lastname: string, language: Language) => ipcRenderer.invoke('addProfile', firstname, lastname, language),
   loadProfile: (profileId: string) => ipcRenderer.invoke('loadProfile', profileId),
@@ -70,5 +71,6 @@ contextBridge.exposeInMainWorld('api', {
         return () => {
             ipcRenderer.removeListener('cover-status', subscription);
         };
-    }
+    },
+  deleteApplication: (applicationId: string) => ipcRenderer.invoke('delete-application', applicationId) as Promise<boolean>,
 });
