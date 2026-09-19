@@ -1,5 +1,3 @@
-import { ScrapedJobOffer } from '../scrapers/Adapter.types';
-
 export interface ExtractRequestMessage {
   action: 'EXTRACT_AND_HIGHLIGHT';
 }
