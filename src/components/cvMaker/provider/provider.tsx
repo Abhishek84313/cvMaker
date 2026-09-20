@@ -101,12 +101,18 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Loading, isCurrentJob: true }));
     setJobInfos(prev => ({ ...prev, description: rawMandate }));
 
-    const analysisResult = await api.analyseMandate(rawMandate, profile?.language || Language.ENGLISH, true);
+    const analysisResult = await api.analyseMandate(rawMandate, profile?.language || Language.ENGLISH, true, jobInfos.title || undefined);
     if ('error' in analysisResult) {
       console.error('AI Analysis Error:', analysisResult.error);
       setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Error }));
     }
-  }, [profile?.language]);
+  }, [jobInfos.title, profile?.language]);
+
+  const runLocalAnalysis = useCallback(async (rawMandate: string) => {
+    setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Loading, isCurrentJob: false }));
+    setJobInfos(prev => ({ ...prev, description: rawMandate }));
+    await api.analyseMandate(rawMandate, profile?.language || Language.ENGLISH, false, jobInfos.title || undefined);
+  }, [jobInfos.title, profile?.language]);
 
   const initJobMandate = useCallback((infos: Partial<JobInfos>) => {
     setJobInfos(prev => ({
@@ -121,15 +127,9 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     }
 
     if (infos.description?.trim()) {
-      runFullAIAnalysis(infos.description.trim());
+      runLocalAnalysis(infos.description.trim());
     }
-  }, [runFullAIAnalysis]);
-
-  const runLocalAnalysis = useCallback(async (rawMandate: string) => {
-    setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Loading, isCurrentJob: false }));
-    setJobInfos(prev => ({ ...prev, description: rawMandate }));
-    await api.analyseMandate(rawMandate, profile?.language || Language.ENGLISH, false);
-  }, [profile?.language]);
+  }, [runLocalAnalysis]);
 
   const runAIRewrite = useCallback(async () => {
     setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Rewriting }));

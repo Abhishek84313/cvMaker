@@ -21,7 +21,7 @@ export const api = {
     updateSection: async (id: string, section: keyof ProfilesData, newData: ProfilesData[keyof ProfilesData]) => await window.api.updateSection(id, section, newData),
     generatePDF: async (html: string, fileName: string, applicationId?: string) => await window.api.generatePDF(html, fileName, applicationId),
     syncDb: async (profileId: string, experiences: Experience[], projects: Project[]) => await window.api.syncDb(profileId, experiences, projects),
-    analyseMandate: async (rawMandate: string, language: Language, useAi: boolean) => await window.api.analyseMandate(rawMandate, language, useAi),
+    analyseMandate: async (rawMandate: string, language: Language, useAi: boolean, jobTitle?: string) => await window.api.analyseMandate(rawMandate, language, useAi, jobTitle),
     onAnalysisStatus: (callback: (data: { status: AIAnalysisStatus; message?: string; data?: unknown }) => void) => window.api.onAnalysisStatus(callback),
     reduceKeywordCount: (keyword: string, amount?: number) => window.api.reduceKeywordCount(keyword, amount),
     getOllamaInfos: async () => await window.api.getOllamaInfos(),
