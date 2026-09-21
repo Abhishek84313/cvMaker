@@ -49,18 +49,18 @@ export async function analyzeMandate({ event, options }: AnalyseMandateProps): P
             return { error: 'Analysis failed' };
         }
     } else {
-        const candidates = LocalkeywordsExtractor.extractCandidates(rawMandate, language, );
-        console.log('Local keyword extraction candidates:', candidates);
+        const candidates = LocalkeywordsExtractor.extractCandidates(rawMandate, language);
+        console.log('Local keyword extraction candidates:', candidates.sort((a, b) => b.count - a.count));
         // keywords = await KeywordSemanticEnhancer.cluster(
         //     candidates,
         //     (text) => vectorService.generateEmbedding(text)
         // );
-        keywords = candidates.map(c => c.original);
+        keywords = candidates.sort((a, b) => b.count - a.count).map((candidate) => candidate.original);
         console.log('Local keyword extraction result:', keywords);
-        keywords = await refineKeywordsWithAI(keywords, language, jobTitle);
+        keywords = await refineKeywordsWithAI(keywords.slice(0, Math.min(30, keywords.length)), language, jobTitle);
 
-        const dbAffinity = KeywordsAffinityDatabase.getInstance();
-        dbAffinity.incrementKeywords(keywords.map((k) => k.toLowerCase()));
+        // const dbAffinity = KeywordsAffinityDatabase.getInstance();
+        // dbAffinity.incrementKeywords(keywords.map((k) => k.toLowerCase()));
         event.sender.send('analysis-status', { status: AIAnalysisStatus.Local_Analyze_Result, data: { keywords } });
     }
 

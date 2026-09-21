@@ -175,23 +175,29 @@ INSTRUCTIONS:
   You are a domain-agnostic ATS keyword normalization engine.
   Your task is to refine a list of candidate keywords extracted from a job posting${jobTitle ? ` for the position of "${jobTitle}"` : ''}.
 
-  ${JSON.stringify(candidates)}
-
-  FILTERING RULES (APPLY TO ALL INDUSTRIES):
+  FILTERING RULES:
   
-  1. RETAIN (High-value keywords for a resume):
-   - Domain-specific tools, platforms, software, and technologies (e.g., "SQL", "Figma", "Google Analytics", "Salesforce", "AutoCAD").
-   - Core industry concepts, frameworks, and methodologies (e.g., "RESTful APIs", "SEO", "Agile", "Financial Modeling", "B2B Marketing").
-   - Technical standards, certifications, or specialized field domain expertise (e.g., "SOAP", "Legal Tech", "IFRS", "ISO 9001").
+1. TARGET SIZE:
+  - Extract and return ONLY the TOP 20 to 30 most critical keywords, sort them from most important to least important ${jobTitle ? `for the role of "${jobTitle}"` : ''}.
 
-  2. ELIMINATE (Low-value noise and filler):
-    - Standalone action verbs or task phrases (e.g., "gather requirements", "translate them", "Solve problems", "implementing", "Actively engage").
-    - Generic organizational buzzwords & subjective qualities (e.g., "innovative solutions", "industry best practices", "standards", "full ownership", "friendly", "smooth user").
-    - Single non-descriptive filler words (e.g., "them", "What", "look", "along", "easy", "hands").
-    - Job posting metadata & HR boilerplate (e.g., "#LI-Hybrid", "Bonus", "Internship", "What you'll do").
+2. KEEP ONLY (Technical & Industry Terms):
+  - Core tools, platforms, technologies, and software
+  - Domain concepts & methodologies
+  - Essential technical practices
+  - Names and abbreviations of programming languages, frameworks, libraries, and tools
 
-  3. CONSOLIDATE & NORMALIZE:
-    - Merge near-duplicates or fragmented sub-terms into their most recognized industry name (e.g., merge "APIs", "REST" -> "RESTful APIs"; or "Google Analytics", "Analytics" -> "Google Analytics").
+3. STRICTLY ELIMINATE (Noise & Legal/HR Text):
+  - HR boilerplate, disclaimers, salary info, or privacy notices
+  - Education degree requirements or general qualifiers
+  - Generic verbs, filler words, and subjective traits
+  - Duplicate or overlapping terms
+  - remove words standing alone that make no sense in isolation (e.g., "experience", "knowledge", "skills", "ability", "team", "work", "role", "responsibilities", "tasks", "projects", "duties")
+
+4. CONSOLIDATE:
+  - Clean up fragmented phrases into standard industry terms
+
+  ${candidates.length > 0 ? `INPUT CANDIDATES: 
+    ${candidates.join(', ')}` : 'No input candidates provided.'}
 
   OUTPUT FORMAT:
   Return STRICTLY a valid JSON object with no Markdown tags, no quotes wrapper, and no introductory or concluding text.

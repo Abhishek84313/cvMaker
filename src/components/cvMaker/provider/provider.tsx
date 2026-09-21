@@ -114,7 +114,39 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     await api.analyseMandate(rawMandate, profile?.language || Language.ENGLISH, false, jobInfos.title || undefined);
   }, [jobInfos.title, profile?.language]);
 
+  const cleanUpProvider = useCallback(() => {
+    console.log("Cleaning up CVSelectionProvider state...");
+    setId(null);
+    setTitle("Resume - " + (profile?.firstName || "Draft") + " - " + Date.now());
+    setSelection({
+      headerInfos: INITIAL_HEADER,
+      selectedExpIds: [],
+      selectedProjectIds: [],
+      selectedBullets: {},
+      selectedSkillsIds: [],
+      selectedEducationIds: []
+    });
+    setAiState({
+      status: AIAnalysisStatus.Idle,
+      isCurrentJob: false
+    });
+    setJobInfos({
+      title: "",
+      company: "",
+      url: "",
+      description: "",
+      focus: "",
+      keywords: [],
+    });
+    setCustomTexts({});
+    setScores({});
+    setRewritingKeys([]);
+    setIsSaving(false);
+    setSummaryBullets([]);
+  }, [profile?.firstName]);
+
   const initJobMandate = useCallback((infos: Partial<JobInfos>) => {
+    cleanUpProvider();
     setJobInfos(prev => ({
       ...prev,
       ...infos,
@@ -129,7 +161,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     if (infos.description?.trim()) {
       runLocalAnalysis(infos.description.trim());
     }
-  }, [runLocalAnalysis]);
+  }, [cleanUpProvider, runLocalAnalysis]);
 
   const runAIRewrite = useCallback(async () => {
     setAiState(prev => ({ ...prev, status: AIAnalysisStatus.Rewriting }));

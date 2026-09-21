@@ -58,7 +58,8 @@ const convertToNumber = (value: string | number): number | null => {
 };
 
 export default function NewDialog({ defaultOpen = false }: Props) {
-  const { setSelectedTab, activeCvSessionId, incomingJob, setIncomingJob } = useUiStore();
+  const processingJobRef = useRef<string | null>(null);
+  const { setSelectedTab, activeCvSessionId, incomingJob, setIncomingJob, loadCvSession } = useUiStore();
   const { initJobMandate } = useCVSelection();
   const [open, setOpen] = useState(defaultOpen && !activeCvSessionId);
   const [title, setTitle] = useState("");
@@ -71,19 +72,23 @@ export default function NewDialog({ defaultOpen = false }: Props) {
   const isSubmittingRef = useRef(false);
 
   useEffect(() => {
-    if (incomingJob) {
-      initJobMandate({
-        title: incomingJob.title || "",
-        company: incomingJob.company || "",
-        url: incomingJob.url || "",
-        description: incomingJob.mandate || "",
-        salary: incomingJob.salary ? convertToNumber(incomingJob.salary) : null,
-      });
+    if (incomingJob && incomingJob.id !== processingJobRef.current) {
+      processingJobRef.current = incomingJob.id;
+      const jobMandate = {...incomingJob};
       setIncomingJob(null);
+      console.log("Incoming job mandate detected:", jobMandate);
+      loadCvSession("");
+      initJobMandate({
+        title: jobMandate.title || "",
+        company: jobMandate.company || "",
+        url: jobMandate.url || "",
+        description: jobMandate.mandate || "",
+        salary: jobMandate.salary ? convertToNumber(jobMandate.salary) : null,
+      });
       // close the dialog if it was open
       (() => setOpen(false))();
     }
-  }, [incomingJob, initJobMandate, setIncomingJob]);
+  }, [incomingJob, initJobMandate, loadCvSession, setIncomingJob]);
 
   const reset = () => {
     setTitle("");

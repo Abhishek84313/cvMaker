@@ -1,6 +1,9 @@
 export const EN_STOP_WORDS = {
     structural: [
-        'the', 'and', 'is', 'in', 'at', 'of', 'a', 'to', 'for', 'with', 'on', 'by', 'as', 'an', 'from', 'about', 'into'
+        'the', 'and', 'is', 'in', 'at', 'of', 'a', 'to', 'for', 'with', 'on', 'by', 'as', 'an', 'from', 'about', 'into', 'this', 'these', 'that', 'those', 'which', 'who', 'whom', 'whose', 'where', 'when', 'why', 'how', 'what', 'if', 'or', 'but', 'not', 'no', 'yes',
+        'all', 'any', 'some', 'each', 'every', 'other', 'another', 'such', 'more', 'most', 'many', 'few', 'several', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+        'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth',
+        "always", "often", "rarely", "regularly", "occasionally", "solid", "very", "good", "great", "excellent", "strong", "strongly", "highly"
     ],
     jobContext: [
         'experience', 'experiences', 'years', 'year', 'team', 'teams', 'profile', 'profiles', 'candidate', 'candidates',
@@ -9,7 +12,10 @@ export const EN_STOP_WORDS = {
         'sense', 'good', 'organization', 'organizations', 'ideas', 'idea', 'new',
         'willingness', 'ability', 'abilities', 'coupled', 'role', 'roles',
         'product', 'products', 'skilled', 'skillset', 'versatile', 'solid',
-        'grasp', 'familiarity', 'various', 'extensive'
+        'grasp', 'familiarity', 'various', 'extensive', 'hands', 'production',  'salary', 'qualifications',
+        'internship', 'recruitment', 'systems', 'processes', 'procedures', 'benefits', 'solutions', 'solution',
+        'account', 'client', 'sector', 'volume', 'scope', 'total', 'incidents',
+        'challenges', 'challenge', 'innovation', 'excellence', 'engineering', 'development', 'tools', 'engineers', 'position'
     ],
     verbs: [
         'have', 'will have', 'make', 'know', 'participate', 'value', 'search', 'require', 'design',
@@ -17,7 +23,9 @@ export const EN_STOP_WORDS = {
         'help', 'helping', 'support', 'supporting', 'manage', 'managing', 'lead', 'leading',
         'communicate', 'communicating', 'collaborate', 'collaborating', 'provide', 'providing',
         'assist', 'assisting', 'build', 'building', 'deliver', 'delivering', 'maintain', 'maintaining',
-        'drive', 'driving', 'using', 'based', 'apply', 'applying', 'contribute', 'contributing'
+        'understanding', 'understanding', 'use', 'using', 'base', 'based', 'apply', 'applying', 'contribute', 'contributing',
+        'determined', 
+        'drive', 'driving', 'using', 'based', 'apply', 'applying', 'contribute', 'contributing', 'learn', 'learning', 'analyze', 'analyzing', 'recommend', 'recommending', 'diagnose', 'diagnosing',
     ],
     fillers: [
         'you', 'we', 'your', 'our', 'their', 'all', 'every', 'several', 'as much as', 'sometimes',
@@ -82,4 +90,15 @@ export const FR_STOP_WORDS = {
     ]
 };
 
-export const TECH_WHITELIST = new Set(['c', 'c#', 'r', 'go', 'js', 'ts', 'qt', 'db', 'io']);
+export const TECH_WHITELIST = new Set([
+    'c', 'c#', 'r', 'go', 'js', 'ts', 'qt', 'db', 'io', 'ui', 'ux', 
+    'api', 'sql', 'nosql', 'html', 'css', 'json', 'xml', 'yaml', 'bash', 
+    'cli', 'sdk', 'ide', 'oop', 'mvc', 'rest', 'soap', 'aws', 'gcp', 'azure', 
+    'ci', 'cd', 'devops', 'k8s', 'docker', 'vm', 'vpc', 'vpn', 'cdn', 'dns', 
+    'tcp', 'udp', 'ip', 'http', 'https', 'ftp', 'ssh', 'tls', 'ssl', 'jwt', 'oauth', 
+    'kubernetes', 'microservices', 'serverless', 'graphql', 'websocket', 'react', 'angular', 'vue',
+    'node', 'express', 'django', 'flask', 'spring', 'laravel', 'symfony', 'rails', 
+    'postgresql', 'mysql', 'mongodb', 'redis', 'elasticsearch', 'rabbitmq', 
+    'tensorflow', 'pytorch', 'scikit-learn', 'keras', 'opencv', 'rust', 'dart', 'flutter', 'react-native', 'xamarin', 'unity', 'unreal',
+    'ci/cd', 'node.js'
+]);

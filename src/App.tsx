@@ -22,7 +22,9 @@ function App() {
         toast.info('Please select a profile first!');
         return;
       }
-      useUiStore.getState().setIncomingJob(jobData);
+      const newId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      useUiStore.getState().setIncomingJob({ ...jobData, id: newId });
+      console.log('Incoming job set in store');
       useUiStore.getState().setSelectedTab(Tabs.CVMAKER);
       toast.success(`Offer received : ${jobData.title || 'New offer'}`);
     });

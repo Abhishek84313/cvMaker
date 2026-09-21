@@ -145,9 +145,14 @@ export class LocalkeywordsExtractor {
         this.setStopWords(language);
         const dbAffinity = KeywordsAffinityDatabase.getInstance();
         const normalizedText = this.normalizeText(this.stripBoilerplate(text));
+
         const acronyms = this.extractAcronyms(normalizedText);
         const nouns = this.extractNouns(normalizedText);
         const rakeChunks = this.extractRakeChunks(normalizedText);
+
+        const acronymSet = new Set(acronyms.map(a => a.trim().toLowerCase()));
+        const nounSet = new Set(nouns.map(n => n.trim().toLowerCase()));
+
         const allCandidates = [...acronyms, ...nouns, ...rakeChunks];
         const candidateScores: Map<string, ScoredCandidate> = new Map();
 
@@ -155,9 +160,10 @@ export class LocalkeywordsExtractor {
             const candidate = rawCandidate.trim();
             const cleaned = candidate.toLowerCase();
             const words = cleaned.split(' ').filter(w => w.length > 0);
+            const isWhitelisted = this.isLegitimateTechMatch(cleaned, candidate);
 
             if (
-                (!TECH_WHITELIST.has(cleaned) && cleaned.length <= 2) ||
+                (!isWhitelisted && cleaned.length <= 2) ||
                 cleaned.length > 30 ||
                 this.isStopWord(cleaned) ||
                 this.isPureStopPhrase(cleaned) ||
@@ -172,6 +178,16 @@ export class LocalkeywordsExtractor {
             const globalCount = dbAffinity.getKeywordGlobalCount(cleaned);
             const affinityMultiplier = 1 + Math.log(globalCount + 1);
 
+            let typeMultiplier = 1.0;
+            if (isWhitelisted) {
+                typeMultiplier = 3.0;
+            }
+            else if (acronymSet.has(cleaned)) {
+                typeMultiplier = 1.8;
+            } else if (nounSet.has(cleaned)) {
+                typeMultiplier = 1.3;
+            }
+
             try {
                 const escaped = this.escapeRegExp(candidate);
                 let count = (normalizedText.match(new RegExp(`\\b${escaped}\\b`, 'gi')) || []).length;
@@ -179,7 +195,9 @@ export class LocalkeywordsExtractor {
                 if (count === 0) {
                     count = (normalizedText.match(new RegExp(escaped, 'gi')) || []).length;
                 }
-                const finalScore = count * affinityMultiplier;
+
+                const finalScore = count * affinityMultiplier * typeMultiplier;
+
                 if (count > 0) {
                     candidateScores.set(cleaned, {
                         original: candidate,
@@ -193,6 +211,36 @@ export class LocalkeywordsExtractor {
         }
 
         return Array.from(candidateScores.values());
+    }
+
+    private static isLegitimateTechMatch(cleaned: string, original: string): boolean {
+        if (!cleaned || cleaned.trim().length === 0) return false;
+        if (TECH_WHITELIST.has(cleaned)) {
+                if (cleaned.length === 1) {
+                return original === original.toUpperCase();
+            }
+            return true;
+        }
+
+        const wordsCleaned = cleaned.split(/[\s,;:()/-]+/).filter(w => w.length > 0);
+        const wordsOriginal = original.split(/[\s,;:()/-]+/).filter(w => w.length > 0);
+
+        for (let i = 0; i < wordsCleaned.length; i++) {
+            const word = wordsCleaned[i];
+            const origWord = wordsOriginal[i] || word;
+
+            if (TECH_WHITELIST.has(word)) {
+                if (word.length === 1) {
+                    if (origWord === origWord.toUpperCase()) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
