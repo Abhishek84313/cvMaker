@@ -247,6 +247,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     if (sessionData.jobInfos) {
       setJobInfos(sessionData.jobInfos);
     }
+    setApplicationStatus(sessionData.status ?? JobApplicationStatus.DRAFT);
     setCustomTexts(sessionData.customTexts || {});
     setScores(sessionData.scores || {});
     setSummaryBullets(sessionData.topResumeSummary || []);
@@ -594,7 +595,8 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
 
   const updateApplicationStatus = useCallback((newStatus: JobApplicationStatus) => {
     if (!id) {
-      toast.warning("Cannot update job status: This application is not saved yet. Please save it first.");
+      setApplicationStatus(newStatus);
+      toast.info(`Status set to ${newStatus} (will be saved with your CV)`);
       return;
     }
     api.updateApplicationStatus(id, newStatus).then((updatedStatus) => {
@@ -604,6 +606,8 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       } else {
         toast.error("Failed to update application status");
       }
+    }).catch(() => {
+      toast.error("Failed to update application status");
     });
   }, [id]);
 

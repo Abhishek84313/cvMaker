@@ -141,7 +141,7 @@ export class JobApplicationManager {
 
         console.log(`[JobApplicationManager] Reading JSON file: ${fullPath}`);
         const content = fs.readFileSync(fullPath, "utf-8");
-        return { status: row.status as JobApplicationStatus, ...JSON.parse(content) } as CVSessionDataDTO;
+        return { ...JSON.parse(content), status: row.status as JobApplicationStatus } as CVSessionDataDTO;
     }
 
     public updateStatus(id: string, newStatus: JobApplicationStatus, note?: string) {
