@@ -6,7 +6,7 @@ import { AIAnalysisStatus } from '@shared/AIAnalysisStatus';
 import { useProfileStore } from '@/store/profile';
 import { Language } from '@shared/profile.interface';
 import { type EntityType, buildCustomKey, buildScoreKey } from '@shared/utils';
-import { type CVSelection, type CVSessionDataDTO, type JobInfos } from '@shared/jobApplications.type';
+import { JobApplicationStatus, type CVSelection, type CVSessionDataDTO, type JobInfos } from '@shared/jobApplications.type';
 import { toast } from 'sonner';
 import { useUiStore } from '@/store/ui';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
@@ -24,6 +24,7 @@ export interface CVSelectionContextType {
   rewritingKeys: string[];
   isSaving: boolean;
   summaryBullets: string[];
+  applicationStatus: JobApplicationStatus;
   save: () => Promise<string | null>;
   isItemRewriting: (entityType: EntityType, id: string) => boolean;
   setTitle: (title: string) => void;
@@ -49,6 +50,7 @@ export interface CVSelectionContextType {
   setSummaryBullets: (bullets: string[]) => void;
   registerSaveContributor: (key: string, getData: () => unknown) => () => void;
   registerLoadHandler: (handler: (sessionData: CVSessionDataDTO) => void) => () => void;
+  updateApplicationStatus: (newStatus: JobApplicationStatus) => void;
 }
 
 export type CustomTextMap = Record<string, string>;
@@ -57,6 +59,7 @@ export type ScoreMap = Record<string, number>;
 export function CVSelectionProvider({ children }: { children: React.ReactNode }) {
   const { education, profile, experience, projects } = useProfileStore();
   const { activeCvSessionId, loadCvSession } = useUiStore();
+  const [applicationStatus, setApplicationStatus] = useState<JobApplicationStatus>(JobApplicationStatus.DRAFT);
   const [title, setTitle] = useState<string>(() => "Resume - " + (profile?.firstName || "Draft") + " - " + Date.now());
   const [selection, setSelection] = useState<CVSelection>({
     headerInfos: INITIAL_HEADER,
@@ -143,6 +146,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     setRewritingKeys([]);
     setIsSaving(false);
     setSummaryBullets([]);
+    setApplicationStatus(JobApplicationStatus.DRAFT);
   }, [profile?.firstName]);
 
   const initJobMandate = useCallback((infos: Partial<JobInfos>) => {
@@ -414,6 +418,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
           const item = data.data as { topResumeSummary: string[] };
           setSummaryBullets(item.topResumeSummary);
           setAiState(prev => ({ ...prev, status: AIAnalysisStatus.TOP_RESUME }));
+          setApplicationStatus(JobApplicationStatus.REVIEW);
           break;
         }
 
@@ -562,6 +567,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
         customTexts,
         scores,
         topResumeSummary: summaryBullets,
+        status: applicationStatus,
         ...extraData
       };
 
@@ -578,13 +584,28 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
     } finally {
       setIsSaving(false);
     }
-  }, [id, title, selection, jobInfos, customTexts, scores, summaryBullets]);
+  }, [id, title, selection, jobInfos, customTexts, scores, summaryBullets, applicationStatus]);
 
   useKeyboardShortcut('s', () => {
     if (!isSaving) {
       void save();
     }
   });
+
+  const updateApplicationStatus = useCallback((newStatus: JobApplicationStatus) => {
+    if (!id) {
+      toast.warning("Cannot update job status: This application is not saved yet. Please save it first.");
+      return;
+    }
+    api.updateApplicationStatus(id, newStatus).then((updatedStatus) => {
+      if (updatedStatus) {
+        setApplicationStatus(updatedStatus);
+        toast.success(`Application status updated to ${updatedStatus}`);
+      } else {
+        toast.error("Failed to update application status");
+      }
+    });
+  }, [id]);
 
   return (
     <CVSelectionContext.Provider value={{
@@ -602,6 +623,7 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       rewritingKeys,
       isSaving,
       summaryBullets,
+      applicationStatus,
       save,
       isItemRewriting,
       toggleExperience, 
@@ -624,7 +646,8 @@ export function CVSelectionProvider({ children }: { children: React.ReactNode })
       updateJobInfos,
       setSummaryBullets,
       registerSaveContributor,
-      registerLoadHandler
+      registerLoadHandler,
+      updateApplicationStatus
     }}>
       {children}
     </CVSelectionContext.Provider>

@@ -44,7 +44,7 @@ declare global {
       saveCVSession: (data: Partial<CVSessionDataDTO>) => Promise<{ success: boolean; id?: string; error?: string }>;
       getKeyStats: () => Promise<KeyStats>;
       getApplications: () => Promise<Application[]>;
-      updateApplicationStatus: (id: string, newStatus: JobApplicationStatus) => Promise<void>;
+      updateApplicationStatus: (id: string, newStatus: JobApplicationStatus) => Promise<JobApplicationStatus | null>;
       getApplicationWithTimeline: (applicationId: string) => Promise<ApplicationWithEvents | null>;
       getCVSession: (applicationId: string) => Promise<CVSessionDataDTO | null>;
       openResumeFolder: (applicationId: string) => Promise<boolean>; // false when no resume file exists
