@@ -23,8 +23,8 @@ type UiState = {
   activeCvSessionId: string | null;
   loadCvSession: (id: string) => void;
   // extension management
-  incomingJob: JobOfferPayload | null;
-  setIncomingJob: (job: JobOfferPayload | null) => void;
+  incomingJob: JobOfferPayload & { id: string } | null;
+  setIncomingJob: (job: JobOfferPayload & { id: string } | null) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -38,7 +38,7 @@ export const useUiStore = create<UiState>((set) => ({
   },
   activeCvSessionId: null,
   loadCvSession: (id: string) => {
-    set({ activeCvSessionId: id })
+    set({ activeCvSessionId: id || null })
   },
   incomingJob: null,
   setIncomingJob: (job) => set({ incomingJob: job }),

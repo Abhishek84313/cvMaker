@@ -55,6 +55,7 @@ export interface CVSessionDataDTO {
   customTexts?: Record<string, string>;
   scores?: Record<string, number>;
   coverLetter?: CoverLetterData;
+  status?: JobApplicationStatus;
 }
 
 export interface JobInfos {

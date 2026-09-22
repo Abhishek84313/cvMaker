@@ -23,7 +23,7 @@ declare global {
       updateSection: (id: string, section: keyof ProfilesData, newData: ProfilesData[keyof ProfilesData]) => Promise<ProfilesData[keyof ProfilesData]>;
       generatePDF: (html: string, fileName: string, applicationId?: string) => Promise<string | null>;
       syncDb: (profileId: string, experiences: Experience[], projects: Project[]) => Promise<boolean>;
-      analyseMandate: (rawMandate: string, language: Language, useAi: boolean) => Promise<{ success: boolean; error?: string }>;
+      analyseMandate: (rawMandate: string, language: Language, useAi: boolean, jobTitle?: string) => Promise<{ success: boolean; error?: string }>;
       onAnalysisStatus: (callback: (data: { status: AIAnalysisStatus; message?: string; data?: unknown }) => void) => () => void;
       reduceKeywordCount: (keyword: string, amount?: number) => void;
       getOllamaInfos: () => Promise<NonNullable<UserConfig['ollama']> | null>;
@@ -44,7 +44,7 @@ declare global {
       saveCVSession: (data: Partial<CVSessionDataDTO>) => Promise<{ success: boolean; id?: string; error?: string }>;
       getKeyStats: () => Promise<KeyStats>;
       getApplications: () => Promise<Application[]>;
-      updateApplicationStatus: (id: string, newStatus: JobApplicationStatus) => Promise<void>;
+      updateApplicationStatus: (id: string, newStatus: JobApplicationStatus) => Promise<JobApplicationStatus | null>;
       getApplicationWithTimeline: (applicationId: string) => Promise<ApplicationWithEvents | null>;
       getCVSession: (applicationId: string) => Promise<CVSessionDataDTO | null>;
       openResumeFolder: (applicationId: string) => Promise<boolean>; // false when no resume file exists
