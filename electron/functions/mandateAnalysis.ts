@@ -6,6 +6,7 @@ import { ENGLISH_PROMPTS } from "../prompts/en";
 import { aiService, vectorService } from "../ipcHandlers";
 import { LocalkeywordsExtractor } from "../services/KeywordsExtractor/localKeywordsExtract";
 import { KeywordsAffinityDatabase } from "../services/KeywordsExtractor/KeywordsAffinityDatabase";
+import { sanitizeText } from "../services/KeywordsExtractor/textSanitizer";
 
 export interface AnalyseMandateProps {
     event: IpcMainInvokeEvent;
@@ -17,7 +18,8 @@ export interface AnalyseMandateProps {
 }
 
 export async function analyzeMandate({ event, options }: AnalyseMandateProps): Promise<{ success?: boolean; error?: string }> {
-    const { rawMandate, language, useAi } = options;
+    const { language, useAi } = options;
+    const rawMandate = sanitizeText(options.rawMandate);
 
     let keywords: string[] = [];
     if (useAi) {
@@ -47,9 +49,10 @@ export async function analyzeMandate({ event, options }: AnalyseMandateProps): P
             return { error: 'Analysis failed' };
         }
     } else {
-        keywords = LocalkeywordsExtractor.extractKeywords(rawMandate, language, );
+        keywords = LocalkeywordsExtractor.extractKeywords(rawMandate, language);
         const dbAffinity = KeywordsAffinityDatabase.getInstance();
         dbAffinity.incrementKeywords(keywords.map((k) => k.toLowerCase()));
+        dbAffinity.runEvictionPolicy();
         event.sender.send('analysis-status', { status: AIAnalysisStatus.Local_Analyze_Result, data: { keywords } });
     }
 

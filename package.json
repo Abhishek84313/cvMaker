@@ -9,6 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
+    "eval:keywords": "node scripts/evaluate-keywords.mjs",
     "preview": "vite preview",
     "rebuild": "electron-rebuild -f",
     "start": "npm run rebuild && electron-forge start",

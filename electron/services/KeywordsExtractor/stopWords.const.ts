@@ -1,6 +1,19 @@
 export const EN_STOP_WORDS = {
     structural: [
-        'the', 'and', 'is', 'in', 'at', 'of', 'a', 'to', 'for', 'with', 'on', 'by', 'as', 'an', 'from', 'about', 'into'
+        'the', 'and', 'is', 'in', 'at', 'of', 'a', 'to', 'for', 'with', 'on', 'by', 'as', 'an', 'from', 'about', 'into',
+        'or', 'nor', 'but', 'if', 'then', 'than', 'so', 'such', 'that', 'this', 'these', 'those', 'there', 'here',
+        'be', 'been', 'being', 'am', 'are', 'was', 'were', 'do', 'does', 'did', 'done', 'doing', 'has', 'had',
+        'having', 'can', 'could', 'should', 'would', 'may', 'might', 'shall', 'will', 'must', 'not', 'no', 'yes',
+        'it', 'its', 'he', 'she', 'they', 'them', 'his', 'her', 'hers', 'theirs', 'us', 'me', 'my', 'mine', 'i',
+        'who', 'whom', 'whose', 'which', 'what', 'when', 'where', 'why', 'how', 'while', 'within', 'without',
+        'across', 'after', 'before', 'during', 'over', 'under', 'between', 'through', 'throughout', 'toward',
+        'towards', 'upon', 'via', 'per', 'up', 'down', 'out', 'off', 'again', 'further', 'also', 'just', 'only',
+        'very', 'more', 'most', 'less', 'least', 'much', 'many', 'some', 'any', 'each', 'both', 'either', 'neither',
+        'other', 'others', 'another', 'same', 'own', 'too', 'always', 'often', 'never', 'ever', 'already', 'yet',
+        'still', 'even', 'like', 'including', 'etc', 'e.g', 'i.e', 'eg', 'ie', 'vs', 'don', 'won', 'isn', 'aren',
+        'doesn', 'didn', 'wasn', 'weren', 'hasn', 'haven', 'ourselves', 'yourself', 'yourselves', 'themselves',
+        'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'first', 'second', 'third',
+        'able', 'well', 'whether', 'because', 'since', 'until', 'unless', 'though', 'although', 'however'
     ],
     jobContext: [
         'experience', 'years', 'team', 'profile', 'candidate',
@@ -13,6 +26,8 @@ export const EN_STOP_WORDS = {
     ],
     fillers: [
         'you', 'we', 'you', 'your', 'our', 'their', 'all', 'every', 'several', 'as much as', 'sometimes',
+        'ours', 'yours', 'someone', 'anyone', 'everyone', 'something', 'anything', 'everything', 'really',
+        'please', 'apply', 'today', 'now', 'currently', 'usually', 'including', 'within', 'least'
     ]
 };
 
